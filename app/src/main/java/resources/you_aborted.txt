@@ -1,2 +1,9 @@
-You aborted to early, you will have to do this again.
-Restart and don't stopp it until it's done.
+The program couldn't find the file "HashCube.txt" in this folder.
+
+Please press "Calc" to generate one.
+Takes roughly 1 min, depending on your hardware.
+
+After that, you can close this dialouge and the Cube should work.
+
+It's a text file, you could edit if that your thing, but it will moste likely
+not work after that. Throw it away and generate a new one.
