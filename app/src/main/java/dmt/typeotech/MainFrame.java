@@ -7,13 +7,14 @@ package dmt.typeotech;
 import java.awt.BorderLayout;
 import java.awt.Color;
 
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 public class MainFrame extends JFrame{
   public static final long serialVersionUID = 202407042124L;
   Rubik2x2Cube rc;
-  int h = 777, w = 700;
+  int h = 777, w = 777;
 
   public static void main(String[] p){ JFrame.setDefaultLookAndFeelDecorated(true); new MainFrame();}
 
@@ -24,8 +25,11 @@ public class MainFrame extends JFrame{
     setTitle("Rubik's 2x2x2 - puzzle");
     add("Center", rc.jp);
     JPanel jpanel = new JPanel();
-    jpanel.add(rc.jbFarthest);
-    jpanel.add(rc.jbRandom);
+    int i=0,b=2;
+    for(;b<15;b++){
+      JButton temp = rc.ranButts[i++];
+      jpanel.add(temp);
+    }
     jpanel.add(rc.jbSolve);
     add("South", jpanel);
     add("North", rc.jpb);

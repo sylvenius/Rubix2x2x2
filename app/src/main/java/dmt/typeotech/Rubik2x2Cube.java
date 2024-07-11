@@ -32,13 +32,16 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
   int layer;
   Square sqr;
   CubeGlobal global = new CubeGlobal();
-  JButton jbSolve = new JButton("Solve"), jbRandom = new JButton("Random"), jbFarthest = new JButton("Farthest");
+  JButton jbSolve = new JButton("Solve");
+  JButton[] ranButts = new JButton[13];
   JProgressBar jpb = new JProgressBar(0, 0, Rubik2x2Cube.MAXDEPTH);
   Solution solution;
   String identity = "Cube2x2:", error = "Map is coruppt, or not there.";
   TheMap map;
   
   Rubik2x2Cube(Color col){
+    int i=0,b=2;
+    for(;b<15;b++){ranButts[i++]=new JButton(""+b);}
     vicube = new VirtualCube2x2();
     vcm = new VirtualCubeMapper(vicube);
     cubes[0] = new Cube(size);
@@ -56,8 +59,9 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
     
     jp = new MyJPanel(cam, col);
     jbSolve.addActionListener(new ButtLiznr());
-    jbRandom.addActionListener(new ButtLiznr());
-    jbFarthest.addActionListener(new ButtLiznr());
+    for(i=0;i<13;i++){
+      ranButts[i].addActionListener(new ButtLiznr());
+    }
     jpb.setStringPainted(true);
     jpb.setBackground(col);
     jp.addMouseListener(this);
@@ -75,12 +79,10 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
     try{
       String[] quiz = quis.split(":");
       if("Cube2x2".equals(quiz[0])){
-        if(quiz[1].equals("Farest")){
-          return map.getRandomOnLevel(14);
-        }
-        if(quiz[1].equals("Random")){
-          int rand = map.ran.nextInt(14);
-          return map.getRandomOnLevel(rand);
+        String[] ranDepp = quiz[1].split("-");
+
+        if(ranDepp[0].equals("Random")){
+          return map.getRandomOnLevel(Integer.parseInt(ranDepp[1]));
         }
         if(quiz[1].startsWith(";")){ // Whole solution
           String state = quiz[1].substring(1);
@@ -130,6 +132,13 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
     }
   }
     
+  void setButtonsOnOff(boolean on){
+    for(int i=0;i<13;i++){
+      ranButts[i].setEnabled(on);
+    }
+    jbSolve.setEnabled(on);
+  }
+
   void updateProgress(String quiz){
     quiz = identity+quiz;
     String answer;
@@ -138,11 +147,11 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
     try{
       parseAnswer(answer, global);
       if(global.dept<0){
-        jbSolve.setEnabled(false);
+        setButtonsOnOff(false);
         jpb.setString(error);
         solving = false;
       } else {
-        jbSolve.setEnabled(true);
+        setButtonsOnOff(true);
         jpb.setValue(global.dept);
         jpb.setString("Moves from completion : "+global.dept);
       }
@@ -272,9 +281,7 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
   }
   
   void startTwist(){
-    jbRandom.setEnabled(false);
-    jbFarthest.setEnabled(false);
-    jbSolve.setEnabled(false);
+    setButtonsOnOff(false);
     thread = new Thread(this);
     thread.start();
   }
@@ -322,9 +329,7 @@ class Solution{
       solve();
     }else{
       updateProgress("");
-      jbRandom.setEnabled(true);
-      jbFarthest.setEnabled(true);
-      jbSolve.setEnabled(true);
+      setButtonsOnOff(true);
     }
   }
 
@@ -362,9 +367,7 @@ class Solution{
       startTwist();
     } else {
       solving = false;
-      jbRandom.setEnabled(true);
-      jbFarthest.setEnabled(true);
-      jbSolve.setEnabled(true);
+      setButtonsOnOff(true);
     }
     jpb.setValue(global.dept);
     jpb.setString("Moves from completion : "+global.dept);
@@ -429,47 +432,31 @@ class ButtLiznr implements ActionListener, Runnable{
   
   @Override
   public void run(){    
-    jbFarthest.setEnabled(false);
-    jbRandom.setEnabled(false);
-    jbSolve.setEnabled(false);
+    setButtonsOnOff(false);
     
     if(map.ok()){
       try{
-        if("Solve".equals(e.getActionCommand())){
-          solving = true;
-          cam.remView();
-          vicube.normalize();
-          mapVirtualCubeColorsToMyCubes();
-          cam.adjust();
-          jp.repaint();
-          solution = getSolution();
-          solve();
-        }
-        
-        if("Farthest".equals(e.getActionCommand())){
-          vcm.randColors();
-          updateProgress("Farest");
-          if(global.state != 0){
-            vicube.setState(global.state);
+        switch(e.getActionCommand()){
+          case "Solve" ->{
+            solving = true;
+            cam.remView();
+            vicube.normalize();
             mapVirtualCubeColorsToMyCubes();
+            cam.adjust();
+            jp.repaint();
+            solution = getSolution();
+            solve();
+          } 
+          default ->{
+            vcm.randColors();
+            updateProgress("Random-"+e.getActionCommand());
+            if(global.state != 0){
+              vicube.setState(global.state);
+              mapVirtualCubeColorsToMyCubes();
+            }
+            jp.repaint();
+            setButtonsOnOff(true);
           }
-          jp.repaint();
-          jbFarthest.setEnabled(true);
-          jbRandom.setEnabled(true);
-          jbSolve.setEnabled(true);
-        }
-        
-        if("Random".equals(e.getActionCommand())){
-          vcm.randColors();
-          updateProgress("Random");
-          if(global.state != 0){
-            vicube.setState(global.state);
-            mapVirtualCubeColorsToMyCubes();
-          }
-          jp.repaint();
-          jbFarthest.setEnabled(true);
-          jbRandom.setEnabled(true);
-          jbSolve.setEnabled(true);
         }
       }catch(Exception ignore){}
     }else{
@@ -489,12 +476,12 @@ class ButtLiznr implements ActionListener, Runnable{
   int getDim(int layer){
     int retur = 0;
     switch(layer){
-      case 0 : retur = Z; break;
-      case 1 : retur = Z; break;
-      case 2 : retur = Y; break;
-      case 3 : retur = Y; break;
-      case 4 : retur = X; break;
-      case 5 : retur = X; break;
+      case 0 -> retur = Z;
+      case 1 -> retur = Z;
+      case 2 -> retur = Y;
+      case 3 -> retur = Y;
+      case 4 -> retur = X;
+      case 5 -> retur = X;
     }
     return retur;
   }

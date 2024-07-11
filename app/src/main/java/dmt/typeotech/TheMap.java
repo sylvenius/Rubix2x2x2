@@ -38,9 +38,7 @@ public class TheMap {
 
   TheMap(Rubik2x2Cube owner){
     this.owner=owner;
-    owner.jbFarthest.setEnabled(false);
-    owner.jbRandom.setEnabled(false);
-    owner.jbSolve.setEnabled(false);
+    owner.setButtonsOnOff(false);
     for(int i=0;i<15;i++){
       mapl.add(i,new HashMap<>(Info.per_level[i][0]));
     }
@@ -67,14 +65,10 @@ public class TheMap {
     if(mySize == Info.map_size){
       owner.jpb.setString("ThisMap got the right size\n");
       isOk=true;
-      owner.jbFarthest.setEnabled(true);
-      owner.jbRandom.setEnabled(true);
-      owner.jbSolve.setEnabled(true);
+      owner.setButtonsOnOff(true);
     }else{
       owner.jpb.setString("ThisMap DID NOT got the right size\n");
-      owner.jbFarthest.setEnabled(false);
-      owner.jbRandom.setEnabled(false);
-      owner.jbSolve.setEnabled(false);
+      owner.setButtonsOnOff(false);
       if(diag==null){
         diag = new MyDialog(this);
         diag.setAlwaysOnTop(true);
