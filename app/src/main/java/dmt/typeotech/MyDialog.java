@@ -109,7 +109,7 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
           if(!jl2.containsKey(newKey) && jl1.putIfAbsent(newKey,kode) == null){
             moves++;
             totMoves++;
-            jtf.setText("Depts "+Info.nof_depts+"/"+thisDept+" : Moves this dept "+Info.per_level[thisDept]+"/"+moves);
+            jtf.setText("Depts "+Info.nof_depts+"/"+thisDept+" : Moves this dept "+Info.per_level[thisDept][1]+"/"+moves);
           }
         }
       }
