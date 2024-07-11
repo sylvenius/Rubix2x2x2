@@ -30,6 +30,7 @@ import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -39,7 +40,7 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
 
   JButton jbcalc = new JButton("Calc"), jbstop = new JButton("Stop");
   JTextArea ta = new JTextArea();
-  JTextField jtf = new JTextField(25);
+  JProgressBar jpb = new JProgressBar(0, 0, Info.total_permutations);
   JScrollPane scp = new JScrollPane(ta);
   boolean go = true;
   String no_map_resource="no_map.txt";
@@ -56,7 +57,7 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
     jpSouth.add(jbstop);
     add("South", jpSouth);
     add("Center", scp);
-    add("North", jtf);
+    add("North", jpb);
     jbcalc.addActionListener(this);
     jbstop.addActionListener(this);
     setSize(500,500);
@@ -82,7 +83,6 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
   }
   
   void calcInRam(){
-    jtf.setText("Ok lets go ");
     long startT=System.currentTimeMillis();
     short thisDept = 0;
     short sten = 10;
@@ -109,7 +109,7 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
           if(!jl2.containsKey(newKey) && jl1.putIfAbsent(newKey,kode) == null){
             moves++;
             totMoves++;
-            jtf.setText("Depts "+Info.nof_depts+"/"+thisDept+" : Moves this dept "+Info.per_level[thisDept][1]+"/"+moves);
+            jpb.setValue(totMoves);
           }
         }
       }
