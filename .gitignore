@@ -11,8 +11,9 @@ app/*
 !app/build/
 !app/src/
 
-app/build/*
+
 !app/build/libs/
+app/build/*
 
 # !app/src/main/java/dmt/typeotech/
 

@@ -33,7 +33,6 @@ import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 public final class MyDialog extends JDialog implements ActionListener, Runnable{
   public static final long serialVersionUID = 202407042116L;
