@@ -1,0 +1,19 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+!app/
+app/*
+
+!app/build/
+!app/src/
+
+app/build/*
+!app/build/libs/
+
+# !app/src/main/java/dmt/typeotech/
+
+# To big file
+HashCube.txt
