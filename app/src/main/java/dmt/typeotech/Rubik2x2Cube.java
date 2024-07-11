@@ -33,6 +33,8 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
   Square sqr;
   CubeGlobal global = new CubeGlobal();
   JButton jbSolve = new JButton("Solve");
+  JButton jbHint = new JButton("Hint");
+  JButton jbRanCol = new JButton("RanCol");
   JButton[] ranButts = new JButton[13];
   JProgressBar jpb = new JProgressBar(0, 0, Rubik2x2Cube.MAXDEPTH);
   Solution solution;
@@ -59,6 +61,8 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
     
     jp = new MyJPanel(cam, col);
     jbSolve.addActionListener(new ButtLiznr());
+    jbHint.addActionListener(new ButtLiznr());
+    jbRanCol.addActionListener(new ButtLiznr());
     for(i=0;i<13;i++){
       ranButts[i].addActionListener(new ButtLiznr());
     }
@@ -152,13 +156,13 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
         solving = false;
       } else {
         setButtonsOnOff(true);
-        jpb.setValue(global.dept);
-        jpb.setString("Moves from completion : "+global.dept);
+        if(hint)jpb.setValue(global.dept);
+        if(hint)jpb.setString("Moves from completion : "+global.dept);
       }
     }catch(NoSuchElementException | NumberFormatException nsee){
       jpb.setString(error);
     }
-    jpb.setValue(global.dept);
+    if(hint)jpb.setValue(global.dept);
     jp.repaint();
   }
   
@@ -316,12 +320,24 @@ class Solution{
     ang=0;
     twistMode = FREE;
     switch(layer){
-      case 0 : if(twinvert) vicube.rotBackCW();  else vicube.rotBackCCW();   break;
-      case 1 : if(twinvert) vicube.rotFrontCW(); else vicube.rotFrontCCW();  break;
-      case 2 : if(twinvert) vicube.rotTopCCW();  else vicube.rotTopCW();     break;
-      case 3 : if(twinvert) vicube.rotBottomCW();else vicube.rotBottomCCW(); break;
-      case 4 : if(twinvert) vicube.rotLeftCW();  else vicube.rotLeftCCW();   break;
-      case 5 : if(twinvert) vicube.rotRightCCW();else vicube.rotRightCW();   break;
+      case 0 -> {
+          if(twinvert) vicube.rotBackCW();  else vicube.rotBackCCW();
+          }
+      case 1 -> {
+          if(twinvert) vicube.rotFrontCW(); else vicube.rotFrontCCW();
+          }
+      case 2 -> {
+          if(twinvert) vicube.rotTopCCW();  else vicube.rotTopCW();
+          }
+      case 3 -> {
+          if(twinvert) vicube.rotBottomCW();else vicube.rotBottomCCW();
+          }
+      case 4 -> {
+          if(twinvert) vicube.rotLeftCW();  else vicube.rotLeftCCW();
+          }
+      case 5 -> {
+          if(twinvert) vicube.rotRightCCW();else vicube.rotRightCW();
+          }
     }
     mapVirtualCubeColorsToMyCubes();
     jp.repaint();
@@ -369,8 +385,8 @@ class Solution{
       solving = false;
       setButtonsOnOff(true);
     }
-    jpb.setValue(global.dept);
-    jpb.setString("Moves from completion : "+global.dept);
+    if(hint)jpb.setValue(global.dept);
+    if(hint)jpb.setString("Moves from completion : "+global.dept);
   }
     
   @Override
@@ -427,6 +443,7 @@ class Solution{
     if(twistMode != TWISTING) twistMode = FREE;
   }
   
+boolean hint = true;
 class ButtLiznr implements ActionListener, Runnable{
   ActionEvent e;
   
@@ -437,6 +454,16 @@ class ButtLiznr implements ActionListener, Runnable{
     if(map.ok()){
       try{
         switch(e.getActionCommand()){
+          case "RanCol" ->{
+            vcm.randColors();
+            mapVirtualCubeColorsToMyCubes();
+            jp.repaint();
+            setButtonsOnOff(true);
+          } 
+          case "Hint" ->{
+            hint = !hint;
+            setButtonsOnOff(true);
+          } 
           case "Solve" ->{
             solving = true;
             cam.remView();
@@ -448,7 +475,7 @@ class ButtLiznr implements ActionListener, Runnable{
             solve();
           } 
           default ->{
-            vcm.randColors();
+            
             updateProgress("Random-"+e.getActionCommand());
             if(global.state != 0){
               vicube.setState(global.state);

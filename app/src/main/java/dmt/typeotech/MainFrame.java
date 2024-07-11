@@ -14,7 +14,7 @@ import javax.swing.JPanel;
 public class MainFrame extends JFrame{
   public static final long serialVersionUID = 202407042124L;
   Rubik2x2Cube rc;
-  int h = 777, w = 777;
+  int h = 777, w = 888;
 
   public static void main(String[] p){ JFrame.setDefaultLookAndFeelDecorated(true); new MainFrame();}
 
@@ -25,6 +25,8 @@ public class MainFrame extends JFrame{
     setTitle("Rubik's 2x2x2 - puzzle");
     add("Center", rc.jp);
     JPanel jpanel = new JPanel();
+    jpanel.add(rc.jbHint);
+    jpanel.add(rc.jbRanCol);
     int i=0,b=2;
     for(;b<15;b++){
       JButton temp = rc.ranButts[i++];
