@@ -12,7 +12,7 @@ import java.util.HashMap;
 
 public class Info{
   public static final long serialVersionUID = 202407042122L;
-    // static int nof_depts = 14;
+  static int nof_depts = 14;
   // static int max_perm_per_dept  = 1350852;
   static int total_permutations = 3674159;
   static long map_size = 70081515;

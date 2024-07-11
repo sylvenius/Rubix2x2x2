@@ -82,6 +82,7 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
   }
   
   void calcInRam(){
+    jtf.setText("Ok lets go ");
     long startT=System.currentTimeMillis();
     short thisDept = 0;
     short sten = 10;
@@ -108,6 +109,7 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
           if(!jl2.containsKey(newKey) && jl1.putIfAbsent(newKey,kode) == null){
             moves++;
             totMoves++;
+            jtf.setText("Depts "+Info.nof_depts+"/"+thisDept+" : Moves this dept "+Info.per_level[thisDept]+"/"+moves);
           }
         }
       }
