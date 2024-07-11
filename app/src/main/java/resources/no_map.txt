@@ -1,3 +1,4 @@
+
 The program couldn't find the file "HashCube.txt" in this folder.
 
 Please press "Calc" to generate one.

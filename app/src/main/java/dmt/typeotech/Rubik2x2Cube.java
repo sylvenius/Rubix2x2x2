@@ -35,7 +35,7 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
   JButton jbSolve = new JButton("Solve"), jbRandom = new JButton("Random"), jbFarthest = new JButton("Farthest");
   JProgressBar jpb = new JProgressBar(0, 0, Rubik2x2Cube.MAXDEPTH);
   Solution solution;
-  String identity = "Cube2x2:", error = "Connection failure!";
+  String identity = "Cube2x2:", error = "Map is coruppt, or not there.";
   TheMap map;
   
   Rubik2x2Cube(Color col){
@@ -66,6 +66,9 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
   }
 
   String getData(String quis) {
+    if(!map.ok()){
+      return "";
+    }
     VirtualCube2x2 cc = new VirtualCube2x2();
     jpb.setString("Will try to read map");
     String hela = "";
@@ -292,7 +295,6 @@ class Solution{
       return null;
     }
   }
-  
 }
 
   @Override
@@ -350,12 +352,12 @@ class Solution{
     global = solution.getNext();
     if(global.move > 0){
       switch(global.move){
-        case 1 : twinvert = false;  layer = 1; break;
-        case 2 : twinvert = true; layer = 1; break;
-        case 3 : twinvert = false;  layer = 3; break;
-        case 4 : twinvert = true; layer = 3; break;
-        case 5 : twinvert = true; layer = 5; break;
-        case 6 : twinvert = false;  layer = 5; break;
+        case 1 -> {twinvert = false;  layer = 1;}
+        case 2 -> {twinvert = true; layer = 1;}
+        case 3 -> {twinvert = false;  layer = 3;}
+        case 4 -> {twinvert = true; layer = 3;}
+        case 5 -> {twinvert = true; layer = 5;}
+        case 6 -> {twinvert = false;  layer = 5;}
       }
       startTwist();
     } else {

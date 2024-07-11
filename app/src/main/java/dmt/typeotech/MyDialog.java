@@ -7,6 +7,8 @@ package dmt.typeotech;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -44,13 +46,37 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
   boolean go = true;
   String no_map_resource="no_map.txt";
   String you_aborted="you_aborted.txt";
+  String you_are_stupid="you_stupid.txt";
+
   LinkedHashMap<Long,Short> jl1; 
   LinkedHashMap<Long,Short> jl2; 
   TheMap tmap;
+  Thread calcThread,progThread;
+  int totMoves=0;
+
+  private class ProgressThread extends Thread{
+    @Override
+    public void run(){
+      while(go){
+        try {
+          jpb.setValue(totMoves);
+          Thread.sleep(500);
+        } catch (InterruptedException igInterruptedException) {}
+      }
+    }
+  }
+
+
+
+
 
   MyDialog(TheMap tmap){
     this.tmap=tmap;
-    setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+    setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+    addWindowListener(new WindowAdapter() {
+        @Override
+        public void windowClosing(WindowEvent e) {endMe();}
+    });
     JPanel jpSouth = new JPanel(new GridLayout(1,2));
     jpSouth.add(jbcalc);
     jpSouth.add(jbstop);
@@ -70,7 +96,6 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
         no_map_input =  MyDialog.class.getClassLoader().getResourceAsStream(recs);
     }
     try{
-      ta.setText("*");
       BufferedReader reader = new BufferedReader(new InputStreamReader(no_map_input));
       String line;
       while((line = reader.readLine()) != null){
@@ -85,7 +110,8 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
     long startT=System.currentTimeMillis();
     short thisDept = 0;
     short sten = 10;
-    int moves=0, totMoves=0;
+    int moves=0;
+    totMoves=0;
     VirtualCube2x2 cc = new VirtualCube2x2();
     String state = "Level "+ thisDept +" = "+ moves +" permutations, and "+ totMoves + " permutations totaly \n"; 
     ta.append(state);
@@ -125,7 +151,7 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
     try {
         try (BufferedWriter br = new BufferedWriter(new FileWriter("HashCube.txt"))) {
             jl2.forEach((key, val)->{
-                try {
+                if(go) try {
                     br.write(key+"\n");
                     br.write(val+"\n");
                 } catch (IOException ignorOException) {}
@@ -168,7 +194,7 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
     VirtualCube2x2 cc = new VirtualCube2x2();
     int max = 17,turn = 0;
     int dept =0;
-    do{
+    if(go)do{
       
       cc.setState(Long.parseLong(lastKey));
       turn=Short.parseShort(lastVal)%10;
@@ -220,31 +246,60 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
                     beforeHeapMemoryUsage.getUsed();
     ta.append("\n");
     ta.append("Total consumed Memory:  " + hRByteCount(consumed));
-    ta.append("\n\nDoen, press Close and have fun");
+    ta.append("\n\nDone, press Close and have fun");
     ta.setCaretPosition(ta.getDocument().getLength());
   }
 
+  void endMe(){
+    go=false;
+    try {
+      try{
+        calcThread.join();
+        progThread.join();
+      } catch (InterruptedException e1) {}
+    } catch (Exception e1) {}
+    dispose();
+  }
+
+  int stopps=0;
   @Override
   public void actionPerformed(ActionEvent e){ 
     if(e.getActionCommand().equals("Calc")){ 
-      jbcalc.setEnabled(false);
-      Thread th = new Thread(this);
-      th.start();
+
       if(tmap.ok()){
-        ta.append("TheMap.txt is Ok, I will work now");
+        ta.append("TheMap.txt is Ok, I will work now\n");
       } else{
-        ta.append("TheMap.txt is fucked upp, try again");
+        ta.append("TheMap.txt is fucked upp, or non existent, will try now\n\n");
+        jbcalc.setEnabled(false);
+        go=true;
+        calcThread = new Thread(this);
+        calcThread.start();
+        progThread = new ProgressThread();
+        progThread.start();
       }
       ta.setCaretPosition(ta.getDocument().getLength());
     }
+    
     if(e.getActionCommand().equals("Stop")){ 
       go=false;
+      if(stopps++ > 3){
+        endMe();
+      }
       if(tmap.ok()){
-        this.dispose();
+        endMe();
       }else{
-        readResource(you_aborted);
+        if(calcThread == null){
+          readResource(you_are_stupid);
+        }else{
+          try {
+            try{
+              calcThread.join();
+              progThread.join();
+            } catch (InterruptedException e1) {}
+          } catch (Exception e1) {}
+          readResource(you_aborted);
+        }
       }
     }
-      
   }
 }

@@ -1,9 +1,7 @@
-The program couldn't find the file "HashCube.txt" in this folder.
 
-Please press "Calc" to generate one.
-Takes roughly 1 min, depending on your hardware.
+You canseled eraly.
+Mabye to eraly, most likely.
+If the map is fucked, you'll strt again.
 
-After that, you can close this dialouge and the Cube should work.
+to get ridd of me, press the X upper Right.
 
-It's a text file, you could edit if that your thing, but it will moste likely
-not work after that. Throw it away and generate a new one.

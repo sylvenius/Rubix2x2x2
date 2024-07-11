@@ -20,6 +20,14 @@ import java.util.Set;
 public class TheMap {
   public static final long serialVersionUID = 202407042129L;
   private final Rubik2x2Cube owner;
+  Random ran = new Random();
+  ArrayList<HashMap<Long,Short>> mapl = new ArrayList<>(15);
+  MyDialog diag;
+
+  private boolean isOk = false;
+  public boolean ok(){
+    return isOk;
+  }
 
   private class MapReader extends Thread{
     @Override
@@ -27,14 +35,6 @@ public class TheMap {
       readMapFile();
     }
   }
-
-  private boolean isOk = false;
-  public boolean ok(){
-    return isOk;
-  }
-
-  Random ran = new Random();
-  ArrayList<HashMap<Long,Short>> mapl = new ArrayList<>(15);
 
   TheMap(Rubik2x2Cube owner){
     this.owner=owner;
@@ -48,7 +48,6 @@ public class TheMap {
     read.start();
   }
 
-  MyDialog diag;
   public void readMapFile(){
     owner.jpb.setValue(0);
     owner.jpb.setString("Try read from file");
@@ -73,12 +72,16 @@ public class TheMap {
       owner.jbSolve.setEnabled(true);
     }else{
       owner.jpb.setString("ThisMap DID NOT got the right size\n");
-      isOk=false;
       owner.jbFarthest.setEnabled(false);
       owner.jbRandom.setEnabled(false);
       owner.jbSolve.setEnabled(false);
-      diag = new MyDialog(this);
-      diag.setAlwaysOnTop(true);
+      if(diag==null){
+        diag = new MyDialog(this);
+        diag.setAlwaysOnTop(true);
+        isOk=false;
+      } else {
+        diag.jbcalc.setEnabled(true);
+      }
     }
 
   }
