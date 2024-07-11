@@ -1,4 +1,4 @@
-I couldnt find the file "HashCube.txt"
+I couldn't find the file "HashCube.txt"
 in this folder wher I am.
 
 Please press Calc to generate one.
