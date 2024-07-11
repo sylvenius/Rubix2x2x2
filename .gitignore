@@ -4,18 +4,5 @@
 # Ignore Gradle build output directory
 build
 
-!app/
-app/*
-
-!app/build.gradle
-!app/build/
-!app/src/
-
-
-!app/build/libs/
-app/build/*
-
-# !app/src/main/java/dmt/typeotech/
-
 # To big file
 HashCube.txt
