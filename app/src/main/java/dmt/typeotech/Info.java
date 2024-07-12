@@ -12,26 +12,16 @@ import java.util.HashMap;
 
 public class Info{
   public static final long serialVersionUID = 202407042122L;
-  static int nof_depts = 14;
-  // static int max_perm_per_dept  = 1350852;
-  static int total_permutations = 3674159;
+  static int nof_depts = 4;
+  static int max_perm_per_dept  = 9;
+  static int total_permutations = 23;
   static long map_size = 70081515;
   static int[][] per_level = {
           {0,1},
-          {1,6},
-          {2,27},
-          {3,120},
-          {4,534},
-          {5,2256},
-          {6,8969},
-          {7,35058},
-          {8,114149},
-          {9,360508},
-          {10,930588},
-          {11,1350852},
-          {12,782536},
-          {13,90280},
-          {14,276}
+          {1,3},
+          {2,6},
+          {3,9},
+          {4,5}
     };
 
     public static long getBytesFromList(ArrayList<HashMap<Long,Short>> list){

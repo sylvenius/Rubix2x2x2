@@ -48,7 +48,7 @@ jar {
         attributes 'Main-Class': 'dmt.typeotech.MainFrame'
     }
     from sourceSets.main.allSource
-    archivesBaseName = 'Rubix2x2x2'
+    archivesBaseName = 'Rubix2x2x2d'
 }
 // tasks.named('test') {
 //     // Use JUnit Platform for unit tests.

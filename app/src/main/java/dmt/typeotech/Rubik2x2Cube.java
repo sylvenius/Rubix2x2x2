@@ -37,15 +37,15 @@ class Rubik2x2Cube {
   JButton jbSolve = new JButton("Solve");
   JButton jbHint = new JButton("Hint");
   JButton jbRanCol = new JButton("RanCol");
-  JButton[] ranButts = new JButton[13];
-  JProgressBar jpb = new JProgressBar(0, 0, Rubik2x2Cube.MAXDEPTH);
+  JButton[] ranButts = new JButton[5];
+  JProgressBar jpb = new JProgressBar(0, 0, Info.nof_depts);
   Solution solution;
   String identity = "Cube2x2:", error = "Map is coruppt, or not there.";
   TheMap map;
   
   Rubik2x2Cube(Color col){
-    int i=0,b=2;
-    for(;b<15;b++){ranButts[i++]=new JButton(""+b);}
+    int i=0,b=1;
+    for(;b<5;b++){ranButts[i++]=new JButton(""+b);}
     vicube = new VirtualCube2x2();
     vcm = new VirtualCubeMapper(vicube);
     cubes[0] = new Cube(size);
@@ -65,7 +65,7 @@ class Rubik2x2Cube {
     jbSolve.addActionListener(new ButtLiznr());
     jbHint.addActionListener(new ButtLiznr());
     jbRanCol.addActionListener(new ButtLiznr());
-    for(i=0;i<13;i++){
+    for(i=0;i<4;i++){
       ranButts[i].addActionListener(new ButtLiznr());
     }
     jpb.setStringPainted(true);
@@ -105,6 +105,7 @@ class Rubik2x2Cube {
             
             cc.setState(Long.parseLong(state));
             cc.turn(move);
+            cc.turn(move);
             state = cc.getState()+"";
           }while(smove!=0);
         }else{  // Dept info
@@ -140,7 +141,7 @@ class Rubik2x2Cube {
   }
     
   void setButtonsOnOff(boolean on){
-    for(int i=0;i<13;i++){
+    for(int i=0;i<4;i++){
       ranButts[i].setEnabled(on);
     }
     jbSolve.setEnabled(on);
@@ -319,7 +320,7 @@ class Twist extends Thread{
   @Override
   public void run(){
     long start = System.currentTimeMillis();
-    float degs = 93;
+    float degs = 180;
     for(float i = 1; i<degs; i+=0.5){
       try{ extracted(timeTaken); } catch(InterruptedException igInterruptedException){}
         if(twinvert) ang = Math.toRadians(i) ;
@@ -330,22 +331,22 @@ class Twist extends Thread{
     twistMode = FREE;
     switch(layer){
       case 0 -> {
-          if(twinvert) vicube.rotBackCW();  else vicube.rotBackCCW();
+          vicube.rotBackCW();  vicube.rotBackCW(); ;
           }
       case 1 -> {
-          if(twinvert) vicube.rotFrontCW(); else vicube.rotFrontCCW();
+          vicube.rotFrontCW();vicube.rotFrontCW();
           }
       case 2 -> {
-          if(twinvert) vicube.rotTopCCW();  else vicube.rotTopCW();
+          vicube.rotTopCCW(); vicube.rotTopCCW();
           }
       case 3 -> {
-          if(twinvert) vicube.rotBottomCW();else vicube.rotBottomCCW();
+          vicube.rotBottomCW();vicube.rotBottomCW();
           }
       case 4 -> {
-          if(twinvert) vicube.rotLeftCW();  else vicube.rotLeftCCW();
+          vicube.rotLeftCW(); vicube.rotLeftCW();
           }
       case 5 -> {
-          if(twinvert) vicube.rotRightCCW();else vicube.rotRightCW();
+          vicube.rotRightCCW();vicube.rotRightCCW();
           }
     }
     mapVirtualCubeColorsToMyCubes();
