@@ -292,14 +292,14 @@ final class VirtualCube2x2{
   
   void turn(int i){
     switch(i){
-      case 1  : rotFrontCW();   break;
-      case 2  : rotFrontCCW();  break;
+      case 1 -> rotFrontCW();
+      case 2 -> rotFrontCCW();
         
-      case 3  : rotBottomCW();   break;
-      case 4  : rotBottomCCW();  break;
+      case 3 -> rotBottomCW();
+      case 4 -> rotBottomCCW();
         
-      case 5  : rotRightCW();  break;
-      case 6  : rotRightCCW(); break;
+      case 5 -> rotRightCW();
+      case 6 -> rotRightCCW();
     }
   }
   

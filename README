@@ -3,4 +3,7 @@ It's a 2x2x2 Rubiks cube to play around with.
 It can optimaly sove itself from any postion, using a map file.
 You will have to generate the map file when first launching the program, whtch takes roughly 1 - 2 minutes depending on hardware.
 
+This branch is a version where only double moves are possible.
+Could be interesting.
+
 And lastly, this is mostly a project for me to learn git and GitHub for now.
