@@ -28,6 +28,9 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -36,7 +39,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public final class MyDialog extends JDialog implements ActionListener, Runnable{
+public final class MyDialog extends JDialog {
   public static final long serialVersionUID = 202407042116L;
 
   JButton jbcalc = new JButton("Calc"), jbstop = new JButton("Stop");
@@ -56,19 +59,16 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
 
   private class ProgressThread extends Thread{
     @Override
-    public void run(){
-      while(go){
-        try {
+    public void run() {
+      final ScheduledExecutorService service;
+      service = Executors.newSingleThreadScheduledExecutor();
+      Runnable processDataCmd = () -> {
           jpb.setValue(totMoves);
-          Thread.sleep(500);
-        } catch (InterruptedException igInterruptedException) {}
-      }
+          if(!go) service.shutdown();
+      };
+      service.scheduleAtFixedRate(processDataCmd, 0, 333, TimeUnit.MILLISECONDS);
     }
   }
-
-
-
-
 
   MyDialog(TheMap tmap){
     this.tmap=tmap;
@@ -83,11 +83,11 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
     add("South", jpSouth);
     add("Center", scp);
     add("North", jpb);
-    jbcalc.addActionListener(this);
-    jbstop.addActionListener(this);
     setSize(500,500);
     setVisible(true);
     readResource(no_map_resource);
+    jbcalc.addActionListener(new RunningMan());
+    jbstop.addActionListener(new RunningMan());
   }
 
   void readResource(String recs){
@@ -96,12 +96,13 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
         no_map_input =  MyDialog.class.getClassLoader().getResourceAsStream(recs);
     }
     try{
-      BufferedReader reader = new BufferedReader(new InputStreamReader(no_map_input));
-      String line;
-      while((line = reader.readLine()) != null){
-        ta.append(line+"\n");
+      try (BufferedReader reader = new BufferedReader(new InputStreamReader(no_map_input))) {
+        String line;
+        while((line = reader.readLine()) != null){
+          ta.append(line+"\n");
+        }
+        reader.close();
       }
-      reader.close();
       ta.setCaretPosition(ta.getDocument().getLength());
     }catch (IOException igIOException) {} 
   }
@@ -230,6 +231,9 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
     return String.format("%.1f %ciB", value / 1024.0, ci.current());
   }
 
+
+
+class RunningMan implements ActionListener, Runnable{
   @Override
   public void run(){
     MemoryMXBean mbean = ManagementFactory.getMemoryMXBean();
@@ -249,18 +253,6 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
     ta.append("\n\nDone, press Close and have fun");
     ta.setCaretPosition(ta.getDocument().getLength());
   }
-
-  void endMe(){
-    go=false;
-    try {
-      try{
-        calcThread.join();
-        progThread.join();
-      } catch (InterruptedException e1) {}
-    } catch (Exception e1) {}
-    dispose();
-  }
-
   int stopps=0;
   @Override
   public void actionPerformed(ActionEvent e){ 
@@ -302,4 +294,19 @@ public final class MyDialog extends JDialog implements ActionListener, Runnable{
       }
     }
   }
+
+}
+
+  void endMe(){
+    go=false;
+    try {
+      try{
+        calcThread.join();
+        progThread.join();
+      } catch (InterruptedException e1) {}
+    } catch (Exception e1) {}
+    dispose();
+  }
+
+ 
 }

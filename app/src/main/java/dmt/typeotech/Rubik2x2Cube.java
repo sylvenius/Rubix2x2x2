@@ -7,16 +7,17 @@ package dmt.typeotech;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseMotionAdapter;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 import javax.swing.JButton;
 import javax.swing.JProgressBar;
 
-class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
+
+class Rubik2x2Cube {
   public static final long serialVersionUID = 2005110111589L;
   VirtualCube2x2 vicube;
   Camera cam;
@@ -28,6 +29,7 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
   boolean twinvert, solving = false;
   VirtualCubeMapper vcm;
   Thread thread;
+  Thread buttLiznrThread;
   double ang = 0; 
   int layer;
   Square sqr;
@@ -68,8 +70,9 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
     }
     jpb.setStringPainted(true);
     jpb.setBackground(col);
-    jp.addMouseListener(this);
-    jp.addMouseMotionListener(this);
+    
+    jp.addMouseListener(new MouseLiznr());
+    jp.addMouseMotionListener(new MouseMovit());
     map = new TheMap(this);
   }
 
@@ -286,7 +289,7 @@ class Rubik2x2Cube implements Runnable, MouseListener, MouseMotionListener{
   
   void startTwist(){
     setButtonsOnOff(false);
-    thread = new Thread(this);
+    thread = new Twist();
     thread.start();
   }
 
@@ -308,11 +311,17 @@ class Solution{
   }
 }
 
+class Twist extends Thread{
+  private void extracted(long tt) throws InterruptedException {
+    Thread.sleep(5-tt);
+  }
+  long timeTaken=0L;
   @Override
   public void run(){
-    int degs = 90;
-    for(int i = 1; i<degs+1; i++){
-      try{ extracted(); } catch(InterruptedException igInterruptedException){}
+    long start = System.currentTimeMillis();
+    float degs = 93;
+    for(float i = 1; i<degs; i+=0.5){
+      try{ extracted(timeTaken); } catch(InterruptedException igInterruptedException){}
         if(twinvert) ang = Math.toRadians(i) ;
         else ang = -Math.toRadians(i);
       jp.repaint();
@@ -347,11 +356,70 @@ class Solution{
       updateProgress("");
       setButtonsOnOff(true);
     }
+    timeTaken=System.currentTimeMillis()-start;
+  }
+}
+
+class MouseMovit extends MouseMotionAdapter{
+  @Override
+  public void mouseDragged(MouseEvent e){
+    int currentX = e.getX(), currentY = e.getY();
+    if(camMode == FREE ){
+      cam.setAngles((lastX - currentX), (lastY - currentY));
+      lastX = currentX;
+      lastY = currentY;
+    } else if(twistMode == FIXING){ 
+      int dx = currentX-beginX, dy = currentY-beginY ;
+      if( 10 < Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2)) ){
+        double cx1 = sqr.center.x+dx;
+        double cy1 = sqr.center.y+dy;
+        double cx2 = sqr.center.x-dx;
+        double cy2 = sqr.center.y-dy;
+        int d01 = (int)(Math.sqrt(Math.pow(sqr.corners[4].x-cx1, 2) + Math.pow(sqr.corners[4].y-cy1, 2))), 
+            d11 = (int)(Math.sqrt(Math.pow(sqr.corners[5].x-cx1, 2) + Math.pow(sqr.corners[5].y-cy1, 2)));
+        int d02 = (int)(Math.sqrt(Math.pow(sqr.corners[4].x-cx2, 2) + Math.pow(sqr.corners[4].y-cy2, 2))), 
+            d12 = (int)(Math.sqrt(Math.pow(sqr.corners[5].x-cx2, 2) + Math.pow(sqr.corners[5].y-cy2, 2)));
+        int d0 = d02-d01, d1 = d12-d11;
+        twistMode=TWISTING;
+        boolean who = (Math.abs(d0) > Math.abs(d1));
+        if(who){
+          layer = sqr.p3dLayer[0];
+          twinvert = d0 < 0; 
+          if(sqr.inv[0]) twinvert = !twinvert;
+        } else {
+          layer = sqr.p3dLayer[1];
+          twinvert = d1 < 0; 
+          if(sqr.inv[1]) twinvert = !twinvert;
+        } // if(Math.abs(twistX-currentX) < Math.abs(twistY-currentY) ){
+        startTwist();
+      }//if( (int)(twistDx0-dx0) != (int)(twistDx1-dx1) ){
+    }
+    jp.repaint();
   }
 
-  private void extracted() throws InterruptedException {
-    Thread.sleep(10);
+
+}
+
+class MouseLiznr extends MouseAdapter{
+  @Override
+  public void mousePressed(MouseEvent e){
+    e.getButton();
+    lastX = beginX = e.getX();
+    lastY = beginY = e.getY();
+    sqr = cam.getClickedSquare(e.getX(), e.getY());
+    camMode = FREE;
+    if(!solving && (e.getButton() != 3) && (twistMode == FREE) && (sqr != null) && (sqr.p3dLayer[0] != -1)) {
+      twistMode = FIXING;
+      camMode = LOCKED;
+    }
   }
+  @Override
+  public void mouseReleased(MouseEvent e){
+    if(twistMode != TWISTING) twistMode = FREE;
+  }
+}
+
+
   
   Solution getSolution(){    
     String quiz = identity+";" + vicube.getNomalizedState();
@@ -388,62 +456,8 @@ class Solution{
     if(hint)jpb.setValue(global.dept);
     if(hint)jpb.setString("Moves from completion : "+global.dept);
   }
-    
-  @Override
-  public void mousePressed(MouseEvent e){
-    e.getButton();
-    lastX = beginX = e.getX();
-    lastY = beginY = e.getY();
-    sqr = cam.getClickedSquare(e.getX(), e.getY());
-    camMode = FREE;
-    if(!solving && (e.getButton() != 3) && (twistMode == FREE) && (sqr != null) && (sqr.p3dLayer[0] != -1)) {
-      twistMode = FIXING;
-      camMode = LOCKED;
-    }
-  }
   
-  @Override
-  public void mouseDragged(MouseEvent e){
-    int currentX = e.getX(), currentY = e.getY();
-    if(camMode == FREE ){
-      cam.setAngles((lastX - currentX), (lastY - currentY));
-      lastX = currentX;
-      lastY = currentY;
-    } else if(twistMode == FIXING){ 
-      int dx = currentX-beginX, dy = currentY-beginY ;
-      if( 10 < Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2)) ){
-        double cx1 = sqr.center.x+dx;
-        double cy1 = sqr.center.y+dy;
-        double cx2 = sqr.center.x-dx;
-        double cy2 = sqr.center.y-dy;
-        int d01 = (int)(Math.sqrt(Math.pow(sqr.corners[4].x-cx1, 2) + Math.pow(sqr.corners[4].y-cy1, 2))), 
-            d11 = (int)(Math.sqrt(Math.pow(sqr.corners[5].x-cx1, 2) + Math.pow(sqr.corners[5].y-cy1, 2)));
-        int d02 = (int)(Math.sqrt(Math.pow(sqr.corners[4].x-cx2, 2) + Math.pow(sqr.corners[4].y-cy2, 2))), 
-            d12 = (int)(Math.sqrt(Math.pow(sqr.corners[5].x-cx2, 2) + Math.pow(sqr.corners[5].y-cy2, 2)));
-        int d0 = d02-d01, d1 = d12-d11;
-        twistMode=TWISTING;
-        boolean who = (Math.abs(d0) > Math.abs(d1));
-        if(who){
-          layer = sqr.p3dLayer[0];
-          twinvert = d0 < 0; 
-          if(sqr.inv[0]) twinvert = !twinvert;
-        } else {
-          layer = sqr.p3dLayer[1];
-          twinvert = d1 < 0; 
-          if(sqr.inv[1]) twinvert = !twinvert;
-        } // if(Math.abs(twistX-currentX) < Math.abs(twistY-currentY) ){
-        startTwist();
-      }//if( (int)(twistDx0-dx0) != (int)(twistDx1-dx1) ){
-    }
-    jp.repaint();
-  }
-  
-  @Override
-  public void mouseReleased(MouseEvent e){
-    if(twistMode != TWISTING) twistMode = FREE;
-  }
-  
-boolean hint = true;
+  boolean hint = true;
 class ButtLiznr implements ActionListener, Runnable{
   ActionEvent e;
   
@@ -494,8 +508,8 @@ class ButtLiznr implements ActionListener, Runnable{
   @Override
   public void actionPerformed(ActionEvent e){
     this.e = e;
-    Thread t = new Thread(this);
-    t.start();
+    buttLiznrThread = new Thread(this);
+    buttLiznrThread.start();
   }
 
 } // * class *
@@ -512,13 +526,5 @@ class ButtLiznr implements ActionListener, Runnable{
     }
     return retur;
   }
-  
-  @Override
-  public void mouseMoved(MouseEvent e){}  
-  @Override
-  public void mouseClicked(MouseEvent e){}
-  @Override
-  public void mouseEntered(MouseEvent e){}
-  @Override
-  public void mouseExited(MouseEvent e){} 
+
 }//**class RubCube
