@@ -1,7 +1,7 @@
 This is a old project I made, and recently found and improved opon.
 It's a 2x2x2 Rubiks cube to play around with.
-It can optimaly sove itself from any postion, using a map file.
-You will have to generate the map file when first launching the program, whtch takes roughly 1 - 2 minutes depending on hardware.
+It can optimaly sove itself from any postion,.
+It will calculate a solution map in ram memmory in no time.
 
 This branch is a version where only double moves are possible.
 Could be interesting.
