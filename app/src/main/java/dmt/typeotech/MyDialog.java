@@ -49,7 +49,7 @@ public final class MyDialog extends JDialog {
   boolean go = true;
   String no_map_resource="no_map.txt";
   String you_aborted="you_aborted.txt";
-  String you_are_stupid="you_stupid.txt";
+  String no_no="no_no.txt";
 
   LinkedHashMap<Long,Short> jl1; 
   LinkedHashMap<Long,Short> jl2; 
@@ -281,7 +281,7 @@ class RunningMan implements ActionListener, Runnable{
         endMe();
       }else{
         if(calcThread == null){
-          readResource(you_are_stupid);
+          readResource(no_no);
         }else{
           try {
             try{

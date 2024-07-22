@@ -1,7 +1,6 @@
 
-You canseled eraly.
-Mabye to eraly, most likely.
-If the map is fucked, you'll strt again.
+You canceled early, most likely to early.
+so the map file might be fucked.
+Start again to fix it.
 
-to get ridd of me, press the X upper Right.
-
+To get rid of me, press the X in the upper right corner.
